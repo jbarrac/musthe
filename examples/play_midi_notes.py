@@ -21,7 +21,7 @@ player = musicalbeeps.Player(volume = 0.3,
 # To pause the player for 3.5 seconds
 # player.play_note("pause", 3.5)
 
-
+note_len_s = 0.2
 root_Note = Note("A4")
 s = Scale(root_Note, 'major')
 
@@ -31,12 +31,22 @@ for scale_ in s.scales.keys():
     cs = Scale(root_Note, scale_)
     scale_short = []
     scale_full = []
+    frecuency_ = []
+
     for n in cs.notes:
         scale_short.append(str(n))
-        scale_full.append(n.scientific_notation())
-        print(n.frequency())
+        scale_full.append(n.musicalBeeps_notation())
+        string_="{:0.2f}".format(n.frequency())
+        frecuency_.append(string_)
         
         # player.play_note(str(n), 0.1)
-        player.play_note(n.scientific_notation(), 0.1)
+        #player.play_note("pause", note_len_s)
+        player.play_note(n.musicalBeeps_notation(), note_len_s)        
+        print(string_)
+        pass
+    
     print(scale_short)
     print(scale_full) 
+    print(frecuency_) 
+    player.play_note("pause", note_len_s*2)
+    pass

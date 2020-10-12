@@ -194,6 +194,9 @@ class Note:
     def scientific_notation(self):
         return str(self) + str(self.octave)
 
+    def musicalBeeps_notation(self):
+        return self.letter.name + str(self.octave) + self.accidental
+
     def __repr__(self):
         return 'Note({!r})'.format(self.scientific_notation())
 
@@ -438,6 +441,7 @@ class Scale:
         self.name = name
         self.intervals = [Interval(i) for i in self.scales[name]]
         self.notes = [(root + i).to_octave(0) for i in self.intervals]
+        #self.notes = [(root + i).to_octave(0) for i in self.intervals]
 
     def __getitem__(self, k):
         if isinstance(k, int):
