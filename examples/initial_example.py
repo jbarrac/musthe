@@ -34,13 +34,27 @@ s = Scale(C0, 'major')
 print(s.root)       # C
 print(s.notes)      # Notes in Scale
 
+# TODO: Function for plotting all Greek Scales from a Note
+root_Note = C0
 for mode in s.greek_modes.values():
     print('---')
     print(mode)
-    cs = Scale(C0, mode)
+    cs = Scale(root_Note, mode)
+    scale_txt = []
+    for n in cs.notes:
+        scale_txt.append(str(n))        
+    print(scale_txt)
 
-    for n in s.notes:
-        print(n)
+# TODO: Function for plotting all Availables Scales from a Root Note
+root_Note = C0
+for scale_ in s.scales.keys():
+    print('***')
+    print(scale_)
+    cs = Scale(root_Note, scale_)
+    scale_txt = []
+    for n in cs.notes:
+        scale_txt.append(str(n))        
+    print(scale_txt)
 
 
 #Test 4. TODO. Fix Crash, after 4 attemps
