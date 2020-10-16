@@ -2,6 +2,9 @@ from musthe import Interval
 from musthe import Note
 from musthe import Scale
 
+import time
+import rtmidi
+
 import musicalbeeps
 
 player = musicalbeeps.Player(volume = 0.3,
@@ -20,6 +23,9 @@ player = musicalbeeps.Player(volume = 0.3,
 
 # To pause the player for 3.5 seconds
 # player.play_note("pause", 3.5)
+
+play_with_musicalBeeps = False
+play_with_rtmidi = True
 
 note_len_s = 0.2
 root_Note = Note("A4")
@@ -66,16 +72,21 @@ if steps_mode_bool:
         frecuency_ = []
 
         for n in cs.notes:
-            scale_short.append(str(n))
-            scale_full.append(n.musicalBeeps_notation())
-            string_="{:0.2f}".format(n.frequency())
-            frecuency_.append(string_)
-            
-            # player.play_note(str(n), 0.1)
-            #player.play_note("pause", note_len_s)
-            player.play_note(n.musicalBeeps_notation(), note_len_s)        
-            print(string_)
-            pass
+            if play_with_musicalBeeps:
+                scale_short.append(str(n))
+                scale_full.append(n.musicalBeeps_notation())
+                string_="{:0.2f}".format(n.frequency())
+                frecuency_.append(string_)
+                
+                # player.play_note(str(n), 0.1)
+                #player.play_note("pause", note_len_s)
+                player.play_note(n.musicalBeeps_notation(), note_len_s)        
+                print(string_)
+                pass
+
+            if play_with_rtmidi:
+                n.midi_note()
+
         
         print(scale_short)
         print(scale_full) 
