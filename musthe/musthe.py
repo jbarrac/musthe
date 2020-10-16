@@ -97,6 +97,11 @@ class Note:
     'Dbbbb' are not.
     """
 
+    # To Do. Add flat scales, double sharp, double bemol
+    number_letter = {0: 'C',  1: 'C#',  2:  'D',   3: 'D#',
+                     4: 'E',  5: 'F',   6: 'F#',   7: 'G',
+                     8: 'G#', 9: 'A',  10: 'A#',  11: 'B'}
+
     pattern = re.compile(r'([A-G])(b{0,3}|#{0,3})(\d{0,1})$')
 
     @staticmethod
@@ -125,13 +130,21 @@ class Note:
         m = self.pattern.match(note)
         if m is None:
             raise ValueError('Could not parse the note {!r}'.format(note))
-
         self.letter = Letter(m.group(1))
         self.accidental = m.group(2)
         self.octave = int(m.group(3) or '4')
-
+    
+        # Formula to get the Piano Position (C0 = 0, C1 = 12, etc.)
         self.number = self.letter.number() + self.octave * 12 + \
             Note.accidental_value(self.accidental)
+
+    @classmethod
+    def from_number(cls, number):        
+        cls.number = int(number)
+        cls.letter = cls.number_letter[cls.number % 12]
+        cls.accidental = ""
+        cls.octave = cls.number//12
+        return(Note(cls.letter+str(cls.octave)))
 
     def __add__(self, other):
         if isinstance(other, Interval):
@@ -179,7 +192,9 @@ class Note:
             raise UnsupportedOperands('-', self, other)
 
     def midi_note(self):
-        return self.number + 12
+        # http://www.somascape.org/midi/basic/notes.html
+        return self.number + 24      # rtmidi -> Octave[-2:8]
+        #return self.number + 12     # Why?
 
     def frequency(self):
         from math import pow
@@ -398,7 +413,7 @@ class Scale:
         'natural_minor':    ['P1', 'M2', 'm3', 'P4', 'P5', 'm6', 'm7'],
         'harmonic_minor':   ['P1', 'M2', 'm3', 'P4', 'P5', 'm6', 'M7'],
         'melodic_minor':    ['P1', 'M2', 'm3', 'P4', 'P5', 'M6', 'M7'],
-        'major_pentatonic': ['P1', 'M2', 'M3',       'P5', 'M6'],
+        'major_pentatonic': ['P1', 'M2', 'M3',       'P5', 'M6'      ],
         'minor_pentatonic': ['P1',       'm3', 'P4', 'P5',       'm7'],
         # greek modes:
         'ionian':           ['P1', 'M2', 'M3', 'P4', 'P5', 'M6', 'M7'],
@@ -420,6 +435,43 @@ class Scale:
     }
     greek_modes_set = set(greek_modes.values())
 
+    # interval_steps (in Tones)
+    scales_interval_steps = {
+        'Major':	            [1,1,0.5,1,1,1,0.5],
+        'Dorian':	            [1,0.5,1,1,1,0.5,1],
+        'Phrygian':	            [0.5,1,1,1,0.5,1,1],
+        'Lydian':	            [1,1,1,0.5,1,1,0.5],
+        'Mixolydian':	        [1,1,0.5,1,1,0.5,1],
+        'Natural_minor':	    [1,0.5,1,1,0.5,1,1],
+        'Locrian':	            [0.5,1,1,0.5,1,1,1],
+        'Alt_Sup_Locrian':	    [0.5,1,0.5,1,1,1,1],
+        'Asc_mel_minor':	    [1,0.5,1,1,1,1,0.5],
+        'Dorian_b2':	        [0.5,1,1,1,1,0.5,1],
+        'Lydian_Augmented':	    [1,1,1,1,0.5,1,0.5],
+        'Lydian_dominant':	    [1,1,1,0.5,1,0.5,1],
+        'Aeolian_dominant':	    [1,1,0.5,1,0.5,1,1],
+        'Half_diminished':	    [1,0.5,1,0.5,1,1,1],
+        'Major_5_Major_Aug':	[1,1,0.5,1.5,0.5,1,0.5],
+        'Dorian_4':	            [1,0.5,1.5,0.5,1,0.5,1],
+        'Phrygian_dominant':	[0.5,1.5,0.5,1,0.5,1,1],
+        'Lydian__2':	        [1.5,0.5,1,0.5,1,1,0.5],
+        'Alt_dominant_bb7':	    [0.5,1,0.5,1,1,0.5,1.5],
+        'Harmonic_minor':	    [1,0.5,1,1,0.5,1.5,0.5],
+        'Locrian_6':	        [0.5,1,1,0.5,1.5,0.5,1],
+        'Harmonic_Major':	    [1,1,0.5,1,0.5,1.5,0.5],
+        'Dorian_b5':	        [1,0.5,1,0.5,1.5,0.5,1],
+        'Phrygian_b4':	        [0.5,1,0.5,1.5,0.5,1,1],
+        'Lydian_b3':	        [1,0.5,1.5,0.5,1,1,0.5],
+        'Mixolydian_b2':	    [0.5,1.5,0.5,1,1,0.5,1],
+        'Lydian_augmented_2':	[1.5,0.5,1,1,0.5,1,0.5],
+        'Locrian_bb7':	        [0.5,1,1,0.5,1,0.5,1.5],
+        'Diminished':	        [1,0.5,1,0.5,1,0.5,1,0.5],
+        'Dominant_diminished':	[0.5,1,0.5,1,0.5,1,0.5,1],
+        'Whole_tone':	        [1,1,1,1,1,1],
+        'Augmented':	        [1.5,0.5,1.5,0.5,1.5,0.5],
+        'Inverted_Augmented':	[0.5,1.5,0.5,1.5,0.5,1.5],
+    }
+    
     @staticmethod
     def all(include_greek_modes=False):
         for root in Note.all():
@@ -434,14 +486,38 @@ class Scale:
 
         if not isinstance(root, Note):
             raise TypeError('Invalid root note type: {}'.format(type(root)))
+
         if name not in self.scales:
             raise NameError('No such scale: {}'.format(name))
 
         self.root = root
         self.name = name
         self.intervals = [Interval(i) for i in self.scales[name]]
-        self.notes = [(root + i).to_octave(0) for i in self.intervals]
+        
+        # If you want to take into account the octave of the root note (Bug Fix)
+        self.notes = [(root + i) for i in self.intervals]
         #self.notes = [(root + i).to_octave(0) for i in self.intervals]
+
+
+    @classmethod # New Method
+    def from_number(cls, root, name):  
+        cls.root = root
+        cls.name = name  
+
+        intervals_scale =  Scale.scales_interval_steps[cls.name]        
+        scale_numbers = []
+        scale_numbers.append(cls.root.number)
+
+        # Octave Root is also included in the last element.
+        for interval_ in intervals_scale:
+            scale_numbers.append(scale_numbers[-1]+interval_*2)
+
+        cls.notes = [Note.from_number(sc) for sc in scale_numbers]
+        cls.intervals = [(note - cls.notes[0]) for note in cls.notes]
+
+        #for i in range(1, len(cls.notes)-1):
+        #    cls.intervals.append(cls.notes[i]-cls.notes[0])
+        return(cls)
 
     def __getitem__(self, k):
         if isinstance(k, int):
@@ -478,3 +554,15 @@ class Scale:
 
     def __repr__(self):
         return 'Scale({!r}, {!r})'.format(self.root, self.name)
+
+    def get_numbers(self):
+        ln = len(self.notes[:])
+        scale_numbers = [None]*ln
+        for n in range(ln):
+            scale_numbers[n] = self.notes[n].number
+
+        print('Scale{!r}'.format(scale_numbers))
+        return scale_numbers
+
+    def get_scale_numbers(self):
+        pass

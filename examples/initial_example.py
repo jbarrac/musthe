@@ -57,7 +57,11 @@ for scale_ in s.scales.keys():
     print(scale_txt)
 
 
-#Test 4. TODO. Fix Crash, after 4 attemps
+
+#Crash 1. cs.notes[7]-cs.notes[0]
+#cs.notes[0]-cs.notes[1]
+
+#Crash 4. TODO. Fix Crash, after 4 attemps due to maximum accidental chars
 Note_inc = C0
 for i in range(12):
     Note_inc = Note_inc + m2_int
